@@ -1,0 +1,70 @@
+************************************
+*  Execution Context in JavaScript *
+************************************
+
+In JavaScript, an execution context is an environment in which code is evaluated and executed. The engine creates a new execution context whenever it encounters global code, a function call, or an eval. Each execution context goes through two phases:
+________________________________________
+1. Creation Phase
+The engine sets up everything needed before running code:
+a. Creating the Lexical Environment
+•	Creates variable/function bindings.
+•	let/const bindings are hoisted but remain uninitialized (in the TDZ).
+•	var bindings are hoisted and initialized to undefined.
+•	Function declarations are hoisted with their full definitions.
+b. Creating the Variable Environment
+•	Stores var bindings (older spec distinction; conceptually still relevant).
+c. Determining this binding
+•	In global context → this is the global object (or undefined in strict mode).
+•	In function context → value depends on how the function is called (call, apply, method call, default binding, arrow functions capturing this lexically).
+________________________________________
+2. Execution Phase
+The engine runs the code line by line.
+•	Variables get assigned values.
+•	Functions execute.
+•	TDZ rules get resolved once declarations are evaluated.
+________________________________________
+Types of Execution Context
+1. Global Execution Context (GEC)
+•	Created once when the program starts.
+•	Creates the global object (window in browsers, global in Node).
+•	Creates the global scope.
+2. Function Execution Context (FEC)
+•	Created every time a function is invoked.
+•	Has its own local memory, arguments object, and this binding.
+3. Eval Execution Context (rarely used in interviews)
+________________________________________
+Execution Context Stack (Call Stack)
+JavaScript uses a stack structure:
+•	GEC is pushed first.
+•	Each function call creates a new FEC pushed on top.
+•	When a function finishes, its context is popped.
+This stack explains recursion behavior, stack overflows, and synchronous single-threaded execution.
+________________________________________
+⭐ Short Version (if interviewer wants concise)
+“An execution context is the environment in which JavaScript code runs. It’s created in two phases:
+Creation phase — variable and function bindings are hoisted, and this is set.
+Execution phase — code runs line by line.
+There are global and function execution contexts, and they’re managed by the call stack.”
+
+*******************
+*  Hoisting in JS *
+*******************
+
+Hoisting in JavaScript is the process where variable and function declarations are registered in memory during the creation phase of an execution context, before the code runs. No code is physically moved — the JavaScript engine simply sets up the necessary bindings ahead of execution.
+How different declarations behave:
+1. `var`
+- Hoisted and initialized to `undefined`.
+- The binding exists from the start of the scope, so accessing it before its declaration does not throw an error — it yields `undefined`.
+
+2. `let` and `const`
+- Hoisted but *not initialized*.
+- They remain in the **Temporal Dead Zone (TDZ)** from the start of the scope until their declaration line runs.
+- Accessing them in the TDZ throws a `ReferenceError`.
+
+3. Function Declarations
+- Fully hoisted, meaning the function’s binding and body are available throughout the scope.
+- You can call them before they appear in the code.
+
+4. Function Expressions / Arrow Functions
+- The variable is hoisted according to its declaration type (`var` → initialized to `undefined`, `let/const` → TDZ).
+- The function *body* is **not** hoisted.
