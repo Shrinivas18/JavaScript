@@ -1,0 +1,29 @@
+The ... (three dots) syntax in JavaScript, when used in certain contexts, is known as the
+rest parameter or rest operator. It is used to collect multiple elements into a single Array
+or Object, which is the opposite of the spread operator.
+
+// Usage of the Rest Parameter
+The primary use cases for the rest parameter are in function definitions and destructuring assignments.
+
+1. In Function Parameters
+   The rest parameter allows a function to accept an indefinite number of arguments and bundles them into a single, real array. This array can then utilize all standard array methods
+   (like map(), filter(), pop(), etc.).
+
+- Syntax: It must be the last parameter in a function definition, prefixed by three dots. A function can only have one rest parameter.
+
+- With other parameters: It only collects the remaining arguments after the named ones have been assigned.
+
+2. In Array Destructuring
+   When destructuring an array, the rest syntax can be used to gather the remaining elements that weren't explicitly assigned to other variables.
+
+3. In Object Destructuring
+   Similarly, the rest syntax works with object destructuring to collect the remaining properties into a new object.
+
+## Key Points
+
+A. Syntax: Both rest and spread use the same ... syntax, but their function is determined by their position in the code.
+
+B. Rest (packs): Gathers multiple items/arguments into a single array or object (left-hand side
+of an assignment or in a function parameter list).
+
+C. Spread (expands): Expands an iterable (array, object, string) into individual elements (right-hand side of an assignment or in a function call).
