@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Score Keeper</title>
+
+  <!-- React CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: linear-gradient(135deg, #1d2671, #c33764);
+      color: #fff;
+    }
+
+    #root {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app {
+      background: rgba(255, 255, 255, 0.12);
+      padding: 25px 30px;
+      border-radius: 14px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      width: 360px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-weight: normal;
+    }
+
+    button {
+      margin: 4px;
+      padding: 8px 14px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #ffcc00;
+      color: #000;
+      transition: all 0.15s ease-in-out;
+    }
+
+    button:hover:not(:disabled) {
+      background: #ffd633;
+      transform: scale(1.05);
+    }
+
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    fieldset {
+      border: 2px solid #ffcc00;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      min-width: 90px;
+      font-size: 18px;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    legend {
+      padding: 0 6px;
+      color: #ffcc00;
+      font-size: 12px;
+    }
+
+    .score-form {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .result {
+      margin-top: 15px;
+      font-size: 16px;
+      line-height: 1.8;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+      margin: 12px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    let score = 0;
+    let wicket = 0;
+    let scorePerBall = [];
+    let isDisabled = false;
+
+    function scoreCard(num) {
+      if (wicket < 9) {
+        scorePerBall.push(num);
+        score += num;
+        rootElement.render(<App />);
+      }
+    }
+
+    function wicketCount() {
+      if (wicket < 9) {
+        scorePerBall.push("W");
+        wicket += 1;
+        rootElement.render(<App />);
+      } else {
+        scorePerBall.push("W");
+        wicket += 1;
+        isDisabled = true;
+        rootElement.render(<App />);
+        alert("All Out");
+      }
+    }
+
+    function resetData() {
+      isDisabled = false;
+      score = 0;
+      wicket = 0;
+      scorePerBall = [];
+      rootElement.render(<App />);
+    }
+
+    const ScoreButtons = () => (
+      <div>
+        {[0, 1, 2, 3, 4, 5, 6].map(num => (
+          <button
+            key={num}
+            onClick={() => scoreCard(num)}
+            disabled={isDisabled}
+          >
+            {num}
+          </button>
+        ))}
+        <button onClick={wicketCount} disabled={isDisabled}>Wicket</button>
+        <hr />
+        <button onClick={resetData}>Next Innings</button>
+      </div>
+    );
+
+    const Form = () => (
+      <div className="score-form">
+        <fieldset>
+          <legend>Total Score</legend>
+          {score}
+        </fieldset>
+        <fieldset>
+          <legend>Wicket(s)</legend>
+          {wicket}
+        </fieldset>
+      </div>
+    );
+
+    const Result = () => (
+      <div className="result">
+        {scorePerBall.map((res, index) => (
+          <span key={index}>
+            {index % 6 === 0 && index !== 0 ? <br /> : null}
+            {res === 0 ? <strong>.</strong> : res}&nbsp;&nbsp;
+          </span>
+        ))}
+      </div>
+    );
+
+    const App = () => (
+      <div className="app">
+        <h1>Score Handler</h1>
+        <h2>Current Score {score}/{wicket}</h2>
+        <ScoreButtons />
+        <Form />
+        <Result />
+      </div>
+    );
+
+    const rootElement = ReactDOM.createRoot(document.getElementById("root"));
+    rootElement.render(<App />);
+  </script>
+</body>
+</html>
