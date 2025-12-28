@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      crossorigin
+      src="https://unpkg.com/react@18/umd/react.development.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+    ></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <title>Form(s) in JSX</title>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const nameRef = React.createRef();
+      const marksRef = React.createRef();
+      let students = [];
+
+      const App = () => {
+        const handleSubmit = (e) => {
+          e.preventDefault();
+          let name = nameRef.current.value;
+          let marks = marksRef.current.value;
+          const newEntry = {
+            name: name,
+            marks: marks,
+          };
+          students.push(newEntry);
+          nameRef.current.value = "";
+          marksRef.current.value = "";
+
+          root.render(<App />);
+        };
+        return (
+          <div>
+            <form onSubmit={(e) => handleSubmit(e)}>
+              <input type="text" ref={nameRef} placeholder="Name" />
+              <input type="number" ref={marksRef} placeholder="Marks" />
+              <button type="submit">Submit</button>
+            </form>
+
+            <div style={{ marginTop: "10px" }}>
+              <table border="2px">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Marks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map((item, index) => {
+                    return (
+                      <tr key={index}>
+                        <td>{item.name}</td>
+                        <td>{item.marks}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      };
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
