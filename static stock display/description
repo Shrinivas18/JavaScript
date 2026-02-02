@@ -1,0 +1,90 @@
+Acceptance criteria
+
+1. The App must have 3 major sections:
+
+-Chart section
+
+-List section
+
+-Detail section
+
+2. The chart section should display a chart based on the data fetched by the provided API.
+
+3. There should be buttons to change the range on which the chart is built.
+
+4. Clicking on any of the buttons should rerender the chart according to the value of the button. 5.
+
+The List section should display all the stocks present in the provided stock list, along with details like book Value and profit.
+
+6. Each list item should have a click event which should change the content of the chart section to the selected stocks.
+
+7. It should be displayed on the right side of the page beside the chart section.
+
+8. The Details section should be present below the chart section, and it should display the name, profit, and book Value along with its little summary provided through the API.
+
+Tasks
+
+You are given an array of stocks that have to be used in this project.
+
+The array "Stocks" is:
+
+const Stocks = ['AAPL','MSFT','GOOGL'AMZN', 'PYPL', 'TSLA' 'JPM','NVDA', 'NFLX', 'DIS']:
+
+You are provided with three different APIs:
+
+a. To get the charts data use this API:
+
+https://stock-market-api-k9vl.onrender.com/api/stocksdata
+
+b. To get the book Value and profit, use this API:
+
+https://stock-market-api-k9vl.onrender.com/api/stocksstatsdata
+
+c. To get the summary of any stock, use this API:
+
+https://stock-market-api-k9vl.onrender.com/api/profiledata
+
+Render all the stocks given in the array along with their book Value and profit, and each stock should have onclick event, which should change the content of the chart and detail section.
+
+For the chart section, display the chart, which should be mapped according to the data fetched using the APL
+
+On hovering over the chart, it should display the timestamp on the x-axis, and subsequently, the name and price of the stock at that date should be displayed at the cursor position, as shown in the picture below
+
+There should be 4 buttons with text "1month", "3month", "1year" and "5year", clicking on which, chart content should be changed
+
+according to the data fetched by the API.
+
+In the detail section, the stock name, its book Value, its profit, and summary should be displayed.
+
+Break the file into multiple modules to make it more readable.
+
+For the profit value, the color of the text should be green if the value is greater than 0 else it should be red.
+
+Additional Tasks
+
+You can add the following functionality to the project to maximize your score:
+
+In the chart section only, display the peak value and low value that the stock has achieved over the selected period of time.
+
+Hints
+
+The whole project can be divided into 3 div:
+
+To display the charts along with all the buttons...
+
+Listto display the list of stock present in your portfolio.
+
+Details: to display details of the selected stocks.
+
+Use any third-party library for plotting the charts or can use plain javascript and CSS to plot the graph like:
+
+-Plotly.js
+-D3.js
+-ChartJS
+
+To convert the timestamp to a particular date, do this:
+
+new_timestamp = new Date(timestamp 1000).toLocaleDateString()
+
+Note:
+The demo site may take some time to start. Please wait for some time.
