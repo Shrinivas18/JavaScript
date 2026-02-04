@@ -60,8 +60,12 @@
   const graphDiv = document.getElementById("graph");
   const stocksDiv = document.getElementById("stocks");
   const descDiv = document.getElementById("description");
+
+  let stocksData;
+  let stockDataKeys;
+  let stockNames;
     
-    async function getStocksData() {
+    async function getAllStocksData() {
       try {
         const resp = await fetch(stocksDataURL);
         const data = await resp.json();
@@ -71,12 +75,16 @@
       }
     };
 
-    setTimeout(async() => {
-      const stocksData = await getStocksData();
-      console.log(stocksData[0])
-      let stockDataKeys = stocksData.map(item=>Object.keys(item))
-      let stockNames = Object.keys(stocksData[0])
-      console.log(stockNames.slice(1,stockNames.length))
-    }, 0);
-    
+    function getstockNames(){
+      stockDataKeys =  stocksData.map(item=>Object.keys(item))
+      const stocks = Object.keys(stocksData[0]).slice(1,)
+      return stocks;
+    }
+
+    async function main(){
+      stocksData = await getAllStocksData();
+      stockNames = getstockNames();
+    }
+
+    main();
 </script>

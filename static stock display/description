@@ -12,9 +12,9 @@ Acceptance criteria
 
 3. There should be buttons to change the range on which the chart is built.
 
-4. Clicking on any of the buttons should rerender the chart according to the value of the button. 5.
+4. Clicking on any of the buttons should rerender the chart according to the value of the button.
 
-The List section should display all the stocks present in the provided stock list, along with details like book Value and profit.
+5. The List section should display all the stocks present in the provided stock list, along with details like book Value and profit.
 
 6. Each list item should have a click event which should change the content of the chart section to the selected stocks.
 
