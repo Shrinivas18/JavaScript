@@ -6,62 +6,109 @@
     <title>Main Stock Market Analysis</title>
   </head>
   <style>
-    h1 {
-      text-align: center;
-    }
-    #firstLayer {
-      padding: 2px;
-      border: 1px solid red;
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      flex-grow: 1;
-      margin: 5px;
-    }
-    #graph {
-      padding: 2px;
-      margin: 5px;
-      height: 60vh;
-      width: 70vw;
-      border: 1px solid black;
-    }
-    #stocks {
-      padding: 2px;
-      margin: 5px;
-      border: 1px solid black;
-      height: 60vh;
-      width: 23.5vw;
-      display: flex;
-      flex-direction: column;
-      flex-wrap: wrap;
-    }
-    #description {
-      padding: 2px;
-      margin: 5px;
-      border: 1px solid black;
-      width: 71vw;
-    }
-    .btnClass {
-      width: 3rem;
-      padding: 2px;
-      margin-top: .5rem;
-      margin-left: 1rem;
-      /* box-shadow: 0px 8px 8px 0px rgba(0, 0, 0, 0.2); */
-      border-top: 1px solid black;
-      border-left: 1px solid black;
-      border-radius: 4px;
-      font-size: 0.7rem;
-      font-weight: bold;
-      background-color: blue;
-      color: white;
-    }
+   * {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #050533, #010116);
+  color: white;
+}
+
+#main {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 2rem;
+  letter-spacing: 1px;
+}
+
+#firstLayer {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+#graph {
+  height: 78vh;
+  width: 70vw;
+  background: linear-gradient(180deg, #05094f, #020230);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+}
+
+#stocksBlock {
+  height: 78vh;
+  width: 24vw;
+  background: linear-gradient(180deg, #05094f, #020230);
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+  overflow-y: auto;
+}
+
+#stocks {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  row-gap: 15px;
+  column-gap:1px;
+  align-items: center;
+  text-align: left;
+}
+
+span{
+  font-weight: lighter;
+}
+
+.btnClass {
+  background-color: #070b7a;
+  color: white;
+  border-top: 3px solid rgba(255, 255, 255, 0.2);
+  border-left: 3px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-size:.8rem;
+  width: 4rem;
+  cursor: pointer;
+}
+
+.btnClass:hover {
+  background-color: #0a10b5;
+}
+
+.profit {
+  color: #00ff6a;
+  font-weight: bold;
+}
+
+.noProfit {
+  color: #ff3b3b;
+  font-weight: bold;
+}
+
+#description {
+  width: 70vw;
+  border-radius: 15px;
+  padding: 20px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
   </style>
   <body>
     <div id="main">
       <h1>Stock Market Analysis</h1>
       <div id="firstLayer">
         <div id="graph"></div>
-        <div id="stocks"></div>
+        <div id="stocksBlock"><div id="stocks"></div></div>
       </div>
       <div id="description">
         <p>
@@ -91,11 +138,11 @@
 
   let stocksData;
   let stockNames;
-  let oneMonth = "1mo";
-  let threeMonths = "3mo";
-  let oneYear = "1y";
-  let fiveYears = "5y";
-  let selectedStock = "AAPL";
+  let summaryData;
+  const oneMonth = "1mo";
+  const threeMonths = "3mo";
+  const oneYear = "1y";
+  const fiveYears = "5y";
 
   async function getAllStocksData() {
     try {
@@ -123,26 +170,55 @@
     return stocksData[0][selectedStock][fiveYears];
   }
 
-  function onClickStockButton() {
-    console.log("hi");
+  async function bookedValueAndProfit(){
+    const resp = await fetch(bookValueAndProfitURL)
+    const data = await resp.json();
+    return data.stocksStatsData[0];
   }
 
-  function generateStockButton(stockName) {
+  async function getSummaryData(){
+    let resp = await fetch(stockSummaryURL);
+    let data = await resp.json();
+    return data.stocksProfileData;
+  }
+
+  function onClickStockButton(stockName) {
+    let description = stocksData[stockName];
+  }
+
+  function generateStockButton(stockName, bookValAndProfitResponse) {
     const stocksDiv = document.getElementById("stocks");
     const newButton = document.createElement("button");
     newButton.textContent = stockName;
     newButton.type = "button";
     newButton.className = "btnClass";
-    newButton.addEventListener("click", onClickStockButton());
+    newButton.addEventListener("click", () => onClickStockButton(stockName));
+
+    const bookVal = document.createElement('span');
+    const profitVal = document.createElement('span');
+    
+    if(bookValAndProfitResponse.profit > 0) profitVal.classList.add('profit')
+    else profitVal.classList.add('noProfit')
+    
+    bookVal.innerHTML = '$'+ bookValAndProfitResponse.bookValue.toFixed(3);
+    profitVal.innerHTML = bookValAndProfitResponse.profit.toFixed(2) + '%';
+
     stocksDiv.appendChild(newButton);
+    stocksDiv.appendChild(bookVal);
+    stocksDiv.appendChild(profitVal);
+
+    stocksBlock = document.getElementById("stocksBlock");
+    stocksBlock.appendChild(stocksDiv)
   }
 
   async function main() {
     stocksData = await getAllStocksData();
     stockNames = Object.keys(stocksData[0]).slice(1);
+    bookValAndProfit = await bookedValueAndProfit();
+    summaryData = await getSummaryData();
 
     for (let i = 0; i < stockNames.length; i++) {
-      generateStockButton(stockNames[i]);
+      generateStockButton(stockNames[i], bookValAndProfit[stockNames[i]]);
     }
   }
 
