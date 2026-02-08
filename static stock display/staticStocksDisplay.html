@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <title>Main Stock Market Analysis</title>
   </head>
   <style>
@@ -98,8 +100,36 @@ span{
   width: 70vw;
   border-radius: 15px;
   padding: 20px;
-  font-size: 0.9rem;
+  font-size: 0.7rem;
   line-height: 1.6;
+  font-weight: bold;
+  color: white;
+}
+
+.durationBtn {
+  background-color: #070b7a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 1.2rem;
+  margin-left: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(7, 11, 122, 0.7);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+}
+
+.durationBtn:hover {
+  background-color: #0a10b5;
+  box-shadow: 0 0 15px rgba(10, 16, 181, 1);
+}
+
+#timeButtons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
 }
 
   </style>
@@ -107,20 +137,13 @@ span{
     <div id="main">
       <h1>Stock Market Analysis</h1>
       <div id="firstLayer">
-        <div id="graph"></div>
+        <div id="graph">
+          <canvas id="chart"></canvas>
+          <div id="timeButtons"></div>
+        </div>
         <div id="stocksBlock"><div id="stocks"></div></div>
       </div>
-      <div id="description">
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas
-          possimus eaque suscipit aliquid, dolor alias assumenda vero quasi
-          praesentium, laudantium vel ipsum, ea hic tempora qui? Esse
-          necessitatibus rerum fuga. Lorem ipsum dolor sit amet consectetur,
-          adipisicing elit. Facilis a libero suscipit dolorem consequuntur
-          placeat molestiae blanditiis voluptatibus totam unde odio cum
-          architecto tenetur eligendi reiciendis, commodi nobis itaque ea?
-        </p>
-      </div>
+      <div id="description"></div>
     </div>
   </body>
 </html>
@@ -134,7 +157,6 @@ span{
     "https://stock-market-api-k9vl.onrender.com/api/profiledata";
 
   const graphDiv = document.getElementById("graph");
-  const descDiv = document.getElementById("description");
 
   let stocksData;
   let stockNames;
@@ -143,31 +165,52 @@ span{
   const threeMonths = "3mo";
   const oneYear = "1y";
   const fiveYears = "5y";
+  let chartInstance = null;
+  const verticalLinePlugin = {
+  id: 'verticalLine',
+  afterDraw(chart) {
+    if (chart.tooltip?._active?.length) {
+      const ctx = chart.ctx;
+      const x = chart.tooltip._active[0].element.x;
+      const topY = chart.scales.y.top;
+      const bottomY = chart.scales.y.bottom;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x, topY);
+      ctx.lineTo(x, bottomY);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+};
 
   async function getAllStocksData() {
     try {
       const resp = await fetch(stocksDataURL);
       const data = await resp.json();
-      return data.stocksData;
+      return data.stocksData[0];
     } catch (e) {
       console.log("Something went wrong: ", e);
     }
   }
 
   function getStockDataForOneMonth(selectedStock) {
-    return stocksData[0][selectedStock][oneMonth];
+    return stocksData[selectedStock][oneMonth];
   }
 
   function getStockDataForThreeMonths(selectedStock) {
-    return stocksData[0][selectedStock][threeMonths];
+    return stocksData[selectedStock][threeMonths];
   }
 
   function getStockDataForOneYear(selectedStock) {
-    return stocksData[0][selectedStock][oneYear];
+    return stocksData[selectedStock][oneYear];
   }
 
   function getStockDataForFiveYears(selectedStock) {
-    return stocksData[0][selectedStock][fiveYears];
+    return stocksData[selectedStock][fiveYears];
   }
 
   async function bookedValueAndProfit(){
@@ -179,13 +222,142 @@ span{
   async function getSummaryData(){
     let resp = await fetch(stockSummaryURL);
     let data = await resp.json();
-    return data.stocksProfileData;
+    return data.stocksProfileData[0];
   }
 
   function onClickStockButton(stockName) {
-    let description = stocksData[stockName];
+    let description = summaryData[stockName].summary;
+    let time = fiveYears;
+    const oldPara = document.getElementById('para')
+    if(oldPara) oldPara.remove();
+    const descDiv = document.getElementById("description");
+    const para = document.createElement('p');
+    para.id = 'para';
+    para.innerText = description;
+    descDiv.appendChild(para);
+    createChart(stockName,time); 
   }
 
+  function createChart(stock, time) {
+  const ctx = document.getElementById('chart').getContext('2d');
+  let data;
+
+  switch (time) {
+    case oneMonth:
+      data = getStockDataForOneMonth(stock);
+      break;
+    case threeMonths:
+      data = getStockDataForThreeMonths(stock);
+      break;
+    case oneYear:
+      data = getStockDataForOneYear(stock);
+      break;
+    case fiveYears:
+      data = getStockDataForFiveYears(stock);
+      break;
+    default:
+      data = getStockDataForFiveYears(stock);
+  }
+
+  const dataForChart = data.timeStamp.map((t, i) => ({
+    x: t,
+    y: data.value[i],
+  }));
+
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: stock,
+          data: dataForChart,
+          borderColor: '#00ff6a',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.25,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+
+      interaction: {
+        mode: 'nearest',
+        axis: 'x',
+        intersect: false,
+      },
+
+      scales: {
+        x: {
+          type: 'time',
+          display: false,
+        },
+        y: {
+          display: false,
+        },
+      },
+
+      plugins: {
+        legend: { display: false },
+
+        tooltip: {
+          enabled: true,
+          yAlign: 'top',
+           xAlign: 'end',
+          displayColors: false,
+          backgroundColor: 'black',
+          bodyColor: '#ffffff',
+          titleColor: '#ffffff',
+          padding: 6,
+           bodyFont: {
+            weight: 'bold',
+            size: 12,
+          },
+
+          callbacks: {
+            title: (items) => null,
+            label: (item) => `${item.dataset.label}: $${item.parsed.y.toFixed(2)}`,
+          },
+        },
+      },
+
+      elements: {
+        point: {
+          radius: 0,
+          hoverRadius: 6,
+          hoverBorderWidth: 2,
+          hoverBackgroundColor: '#00ff6a',
+        },
+      },
+    },
+    plugins: [verticalLinePlugin],
+  });
+
+  createDurationButtons(stock);
+}
+
+function createDurationButtons(stock){
+  const timeButtonsDiv = document.getElementById('timeButtons');
+  const duration = [oneMonth,threeMonths,oneYear,fiveYears]; 
+  const durationtitle = ['1 Month','3 Months','1 Year','5 Years']
+  const oldButtons = document.getElementsByClassName('durationBtn');
+    console.log(typeof oldButtons)
+    Object.entries(oldButtons).forEach(el => {
+      el.remove();
+    });  
+
+  duration.forEach((el,i) => {
+    const btn = document.createElement('button')
+    btn.textContent = durationtitle[i];
+    btn.classList.add('durationBtn')
+    btn.addEventListener('click',() => createChart(stock,el))
+    timeButtonsDiv.append(btn);
+  });
+}
   function generateStockButton(stockName, bookValAndProfitResponse) {
     const stocksDiv = document.getElementById("stocks");
     const newButton = document.createElement("button");
@@ -213,9 +385,10 @@ span{
 
   async function main() {
     stocksData = await getAllStocksData();
-    stockNames = Object.keys(stocksData[0]).slice(1);
+    stockNames = Object.keys(stocksData).slice(1);
     bookValAndProfit = await bookedValueAndProfit();
     summaryData = await getSummaryData();
+    onClickStockButton('AAPL')
 
     for (let i = 0; i < stockNames.length; i++) {
       generateStockButton(stockNames[i], bookValAndProfit[stockNames[i]]);
